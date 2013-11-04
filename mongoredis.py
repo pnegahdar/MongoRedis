@@ -43,7 +43,7 @@ class MongoRedis(object):
         Deletes expired keys from the db, returns count deleted
         """
         now = pytime.time()
-        result = self.col.remove({'exp': {'$lte': now}})
+        result = self.col.remove({'exp': {'$exists': True, '$lte': now}})
         return result['n']
 
     ### REDIS COMMANDS ###
@@ -108,15 +108,19 @@ class MongoRedis(object):
             expire_at += ex
         if nx:
             try:
-                self.col.save({'k': name, 'v': value, 'exp': expire_at})
+                data = {'k': name, 'v': value, 'exp': expire_at}
+                if ex:
+                    data['exp'] = expire_at
+                self.col.save(data)
                 return True
             except DuplicateKeyError:
                 return None
         elif xx:
             upsert = False
-        result = self.col.update({'k': name},
-                                 {'$set': {'v': value, 'exp': expire_at}},
-                                 upsert=upsert)
+        data = {'v': value}
+        if ex:
+            data['exp'] = expire_at
+        result = self.col.update({'k': name}, {'$set': data}, upsert=upsert)
         return True if result['n'] == 1 else None
 
     __setitem__ = set
