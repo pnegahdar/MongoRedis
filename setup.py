@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
 name='mongoredis',
-    version='0.12',
+    version='0.13',
     url='https://github.com/pnegahdar/mongoredis',
     license='See License',
     author='Parham Negahdar',

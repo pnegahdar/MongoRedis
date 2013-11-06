@@ -78,6 +78,11 @@ class TestKeyMethods(BaseTestCase):
         time.sleep(5)
         r = self.mr_client.get('a')
         self.assertIsNone(r)
+        # In events where process is down gets should still fail!
+        self.mr_client.end()
+        self.mr_client.set('ts', 'b', 3)
+        time.sleep(3)
+        self.assertIsNone(self.mr_client.get('ts'))
 
     def test_set(self):
         # Set clean

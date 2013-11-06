@@ -78,7 +78,11 @@ class MongoRedis(object):
         """
         Return the value at key ``name``, or None if the key doesn't exist
         """
-        return (self.col.find_one({'k': name}) or {}).get('v', None)
+        now = pytime.time()
+        result = self.col.find_one({'k': name}) or {}
+        if result.get('exp', now) < now:
+            return None
+        return result.get('v')
 
     def set(self, name, value, ex=None, px=None, nx=False, xx=False):
         """
